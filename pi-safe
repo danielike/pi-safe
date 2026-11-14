@@ -1,12 +1,33 @@
 #!/usr/bin/env bash
 HERE="$(realpath .)"
+
+# Collect extra writable directories from arguments
+# Usage: pi-safe [--bind /path1 --bind /path2] [pi-args...]
+BINDS=()
+ARGS=()
+while [[ $# -gt 0 ]]; do
+    if [[ "$1" == "--bind" ]]; then
+    shift
+    if [[ -n "$1" ]]; then
+        # Expand ~ to $HOME
+        RESOLVED_PATH="${1/\~/$HOME}"
+        BINDS+=("--bind" "$RESOLVED_PATH" "$RESOLVED_PATH")
+        shift
+    fi
+    else
+    ARGS+=("$1")
+    shift
+    fi
+done
+
 echo "Entering sandbox for $HERE"
 bwrap \
-  --ro-bind / / \
-  --bind ~/.pi ~/.pi \
-  --dev-bind /dev/null /dev/null \
-  --dev-bind /dev/urandom /dev/urandom \
-  --tmpfs /tmp \
-  --bind "$HERE" "$HERE" \
-  --setenv PS1 "sandbox$ " \
-  sh -c "cd $HERE && exec $(which pi) $*"
+    --ro-bind / / \
+    --bind ~/.pi ~/.pi \
+    --dev-bind /dev/null /dev/null \
+    --dev-bind /dev/urandom /dev/urandom \
+    --tmpfs /tmp \
+    --bind "$HERE" "$HERE" \
+    "${BINDS[@]}" \
+    --setenv PS1 "sandbox$ " \
+    sh -c "cd $HERE && exec $(which pi) ${ARGS[@]}"
