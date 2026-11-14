@@ -17,10 +17,10 @@ pi-safe is a bash script that wraps Pi in bubblewrap. The entire filesystem runs
 ## Prerequisites
 
 ```bash
-sudo pacman -S bubblewrap ripgrep
+sudo dnf install bubblewrap ripgrep
 ```
 
-> Example is for CachyOS/Arch-based. For other distros, install bubblewrap with your package manager.
+> Example is for Fedora. For other distros, install bubblewrap with your package manager.
 
 ## Install
 
